@@ -1,0 +1,165 @@
+spring:
+  application:
+    name: pollux-backend
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://123.57.244.236:15006/pollux?serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+    async:
+      request-timeout: 60000
+  # session 失效时间（分钟）
+  session:
+    timeout: 86400
+    store-type: redis
+  # redis 配置
+  redis:
+    port: 15008
+    host: 123.57.244.236
+    database: 0
+  # elasticsearch 配置
+  elasticsearch:
+    socket-timeout: 30s # 数据读取超时时间（默认30s）
+    uris: http://123.57.244.236:15909
+    username: elastic
+    password: 1qaz@WSX
+    connection-timeout: 10s
+  rabbitmq:
+    host: 123.57.244.236
+    #port: 15672
+    port: 15002   #开测试发
+    #port: 12002  #演示服务器
+    virtual-host: /pollux
+    username: admin
+    password: admin
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        multiplier: 1
+        max-attempts: 3
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: auto
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  flyway:
+    # 是否启用flyway
+    enabled: true
+    ## 编码格式，默认UTF-8
+    encoding: UTF-8
+    ## 迁移sql脚本文件存放路径，默认db/migration
+    locations: classpath:db/migration
+    ## 迁移sql脚本文件名称的前缀，默认V
+    sqlMigrationPrefix: V
+    ## 迁移sql脚本文件名称的分隔符，默认2个下划线__
+    sqlMigrationSeparator: __
+    # 迁移sql脚本文件名称的后缀
+    sqlMigrationSuffixes: .sql
+    # 迁移时是否进行校验，默认true
+    validateOnMigrate: true
+    # 设置为true，当迁移发现数据库非空且存在没有元数据的表时，自动执行基准迁移，新建schema_version表
+    baselineOnMigrate: true
+
+
+# 服务启动配置
+server:
+  port: 7529
+
+
+# mybatis-plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 #逻辑未删除值(默认为 0)
+
+# 验证码配置
+captcha:
+  # 每天短信验证码服务的最大请求次数
+  max-request-per-day: 10
+
+s3:
+  config:
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: static-pollux
+    endpoint: http://123.57.244.236:15004
+    path-prefix: upload_files/
+
+
+# JWT 配置
+jwt:
+  token-header: 'ACCESS-KEY' #JWT存储的请求头
+  secret-key: xzzn-secret #JWT加解密使用的密钥
+  expire-time: 360 #1000000000 #jwtToken的默认有效时间 单位分钟
+
+
+# QA任务配置
+qa:
+  task:
+    exchange: "pollux.direct"
+#    b2m:
+#      queue:
+#        rk: "qa.task.b2m"
+    backend2model:
+      queue:
+        rk: "qa.task.backend2model"
+
+
+
+# DGP OCR 服务配置
+file:
+  parse:
+    exchange: "pollux.direct"
+    queue:
+      rk: "file.parse"
+    url: http://123.57.244.236:12107/v1/dgp
+    authorization: "Authorization"
+    token: "Bearer QAZWSX123.."
+
+logging:
+  level:
+    com.xzzn.pollux: debug
+    logging.level.com.baomidou.mybatisplus: info
+
+
+# Docker 配置
+docker:
+  #host: tcp://localhost:2375
+  host: tcp://123.57.244.236:15110
+  api-version: 1.43
+
+
+
+# 微调训练 配置
+fine-tune-train:
+  model:
+    #host-dir: ${MODEL_HOST_DIR}
+    host-dir: "/media/nfs2/xz_yyb/xz/download"
+  env:
+    task-name: "FINE_TUNE_TRAIN_ID"
+    model-path-name: "MODEL_HOST_DIR"
+  data:
+    #volume: ${DATA_VOLUME}
+    volume: "pollux_finetune_volume"
